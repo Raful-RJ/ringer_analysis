@@ -74,6 +74,8 @@ eta_lims       = [0, 0.8 , 1.37, 1.54, 2.37, 2.5]
 cv = crossval_table( tuned_info, etbins = zrad_et_lims, etabins = eta_lims )
 cv.from_csv(args.inputTable[0])
 best_inits = cv.filter_inits("max_sp_val")
+best_inits.to_csv('v1.mc16_best_inits.csv')
+
 n_min, n_max = 2, 5
 model_add_tag = { idx : '.mlp%i' %(neuron) for idx, neuron in enumerate(range(n_min, n_max +1))}
 best_inits.train_tag = best_inits.train_tag + best_inits.model_idx.replace(model_add_tag)
