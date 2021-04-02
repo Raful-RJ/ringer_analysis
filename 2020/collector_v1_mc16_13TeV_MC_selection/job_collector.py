@@ -48,11 +48,11 @@ from EventSelectionTool import EventSelection, SelectionType, EtCutType
 evt = EventSelection('EventSelection')
 evt.setCutValue( EtCutType.L2CaloAbove , 15)
 if args.doZrad:
-  evt.setCutValue (SelectionType.SelectionPhoton)
+  evt.setCutValue (SelectionType.SelectionFromOrigin, 37)
 elif args.doFakes:
-  evt.setCutValue (SelectionType.SelectionJet)
+  evt.setCutValue (SelectionType.SelectionFromOrigin, 42)
 else:
-  evt.setCutValue (SelectionType.SelectionPhoton)
+  evt.setCutValue (SelectionType.SelectionFromOrigin, 37)
 
 ToolSvc += evt
 
