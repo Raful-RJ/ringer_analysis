@@ -73,7 +73,7 @@ args = parser.parse_args()
 
 cv  = crossval_table( tuned_info, etbins = etbins , etabins = etabins )
 # cv.fill(args.tunedFiles,args.modelTag)
-cv.from_csv('/home/juan.marin/ringer_analysis/2020/crossval_v1_mc16_13TeV_MC_selection/v1.mc16_all_models.csv')
+cv.from_csv('/home/juan.marin/tunings/v1/r2/tables/v1.mc16_all_models.csv')
 best_inits = cv.filter_inits("max_sp_val")
 print(best_inits)
 best_inits = best_inits.loc[(best_inits.model_idx==0)]
@@ -117,7 +117,7 @@ refName = os.listdir(args.refFiles)[0]
 path = args.dataFiles + model_tag + '{ET}_eta{ETA}.npz'
 ref_tag = refName[0:[n for n in range(len(fileName)) if fileName.find('_et', n) == n][-1]-1]
 # ref_path = args.refFiles + ref_tag + '{ET}_eta{ETA}.ref.pic.gz'
-ref_path = '/home/juan.marin/tunings/v1/r0/ref/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet.v1_et{ET}_eta{ETA}.ref.pic.gz'
+ref_path = '/home/juan.marin/tunings/v1/r2/ref/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet.v1_et{ET}_eta{ETA}.ref.pic.gz'
 
 paths = [[ path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_paths = [[ ref_path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]

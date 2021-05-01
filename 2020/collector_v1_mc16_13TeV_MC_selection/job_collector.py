@@ -47,12 +47,15 @@ from EventSelectionTool import EventSelection, SelectionType, EtCutType
 
 evt = EventSelection('EventSelection')
 evt.setCutValue( EtCutType.L2CaloAbove , 15)
-if args.doZrad:
-  evt.setCutValue (SelectionType.SelectionFromOrigin, 37)
-elif args.doFakes:
-  evt.setCutValue (SelectionType.SelectionFromOrigin, 42)
-else:
-  evt.setCutValue (SelectionType.SelectionFromOrigin, 37)
+
+# if args.doZrad:
+#   evt.setCutValue (SelectionType.SelectionFromOrigin, 37)
+#   evt.setCutValue (SelectionType.SelectionFromType, 14)
+# elif args.doFakes:
+#   evt.setCutValue (SelectionType.SelectionJet)
+# else:
+#   evt.setCutValue (SelectionType.SelectionFromOrigin, 37)
+#   evt.setCutValue (SelectionType.SelectionFromType, 14)
 
 ToolSvc += evt
 
@@ -67,6 +70,7 @@ alg = Collector( 'Collector' , OutputFile = args.outputFile.replace('.root',''),
                 )
 
 etabins = [0.0, 0.8, 1.37, 1.54, 2.37, 2.50]
+# etabins = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
 etbins  = [15.0, 20.0, 30.0, 40.0, 50.0, 1000000.0]
 alg.setEtBinningValues( etbins   )
 alg.setEtaBinningValues( etabins )

@@ -1,4 +1,4 @@
-BASEPATH_gammajet=/home/juan.marin/datasets/physval/user.jlieberm.mc16_13TeV.4231*/*.root
+BASEPATH_gammajet=/home/juan.marin/datasets/physval/user.jlieberm.mc16a_13TeV.4231*/*.root
 
 prun_jobs.py -c "python3 job_collector.py --Zrad" -mt 40 -i $BASEPATH_gammajet
 
