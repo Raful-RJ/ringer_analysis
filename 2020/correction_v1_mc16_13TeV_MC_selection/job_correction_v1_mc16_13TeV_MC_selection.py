@@ -65,15 +65,30 @@ tuned_info = collections.OrderedDict( {
               "max_sp_fa_op"    : 'summary/max_sp_fa_op#0',
               } )
 
-tuned_info.update(create_op_dict('tight'))
-tuned_info.update(create_op_dict('medium'))
-tuned_info.update(create_op_dict('loose'))
+references = [  'rlx20_hlt_tight', 
+                'rlx20_hlt_medium', 
+                'rlx20_hlt_loose', 
+                'rlx30_hlt_tight', 
+                'rlx30_hlt_medium', 
+                'rlx30_hlt_loose', 
+                'rlx40_hlt_tight', 
+                'rlx40_hlt_medium', 
+                'rlx40_hlt_loose', 
+                'rlx50_hlt_tight', 
+                'rlx50_hlt_medium', 
+                'rlx50_hlt_loose',
+                'hlt_loose',
+                'hlt_medium',
+                'hlt_tight']
+
+for ref in references: 
+    tuned_info.update(create_op_dict(ref))
 
 args = parser.parse_args()
 
 cv  = crossval_table( tuned_info, etbins = etbins , etabins = etabins )
 # cv.fill(args.tunedFiles,args.modelTag)
-cv.from_csv('/home/juan.marin/tunings/v1/r2/tables/v1.mc16_all_models.csv')
+cv.from_csv('/home/juan.marin/tunings/v1/allTruth_mc16e/tables/v1.mc16_all_models_rlx.csv')
 best_inits = cv.filter_inits("max_sp_val")
 print(best_inits)
 best_inits = best_inits.loc[(best_inits.model_idx==0)]
@@ -96,18 +111,40 @@ def generator( path ):
     data = norm1(d['data'][:,1:101])
     target = d['target']
     avgmu = d['data'][:,0]
-    references = ['T0HLTPhotonT2CaloTight','T0HLTPhotonT2CaloMedium','T0HLTPhotonT2CaloLoose']
-    ref_dict={}
-    for ref in references:
-        answers = d['data'][:, feature_names.index(ref)]
-        signal_passed = sum(answers[target==1])
-        signal_total = len(answers[target==1])
-        background_passed = sum(answers[target==0])
-        background_total = len(answers[target==0])
-        pd = signal_passed/signal_total
-        fa = background_passed/background_total
-        ref_dict[ref] = {'signal_passed': signal_passed, 'signal_total': signal_total, 'pd' : pd,
-                             'background_passed': background_passed, 'background_total': background_total, 'fa': fa}
+    sgnData = d['data'][target==1]
+    bkgData = d['data'][target!=1]
+    features=d['features']
+
+    featIndex = np.where(features=='mc_type')[0][0]
+    s = []
+    b = []
+    for i in range(len(sgnData)):
+        if sgnData[i,featIndex]==14 or sgnData[i,featIndex]==15 or sgnData[i,featIndex]==13:
+            s.append(sgnData[i,:])
+
+    for i in range(len(bkgData)):
+        if bkgData[i,featIndex]!=14 and bkgData[i,featIndex]!=15 and bkgData[i,featIndex]!=13:
+            b.append(bkgData[i,:])
+
+
+    s = np.asarray(s)
+    b = np.asarray(b)
+    data = np.concatenate((s,b),axis=0)
+    avgmu = data[:,0]
+    data = norm1(data[:,1:101])
+    target = np.concatenate((np.ones(len(s)), np.zeros(len(b)))) 
+# references = ['T0HLTPhotonT2CaloTight','T0HLTPhotonT2CaloMedium','T0HLTPhotonT2CaloLoose']
+    # ref_dict={}
+    # for ref in references:
+    #     answers = d['data'][:, feature_names.index(ref)]
+    #     signal_passed = sum(answers[target==1])
+    #     signal_total = len(answers[target==1])
+    #     background_passed = sum(answers[target==0])
+    #     background_total = len(answers[target==0])
+    #     pd = signal_passed/signal_total
+    #     fa = background_passed/background_total
+    #     ref_dict[ref] = {'signal_passed': signal_passed, 'signal_total': signal_total, 'pd' : pd,
+    #                          'background_passed': background_passed, 'background_total': background_total, 'fa': fa}
 
     return data, target, avgmu
 
@@ -117,18 +154,20 @@ refName = os.listdir(args.refFiles)[0]
 path = args.dataFiles + model_tag + '{ET}_eta{ETA}.npz'
 ref_tag = refName[0:[n for n in range(len(fileName)) if fileName.find('_et', n) == n][-1]-1]
 # ref_path = args.refFiles + ref_tag + '{ET}_eta{ETA}.ref.pic.gz'
-ref_path = '/home/juan.marin/tunings/v1/r2/ref/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet.v1_et{ET}_eta{ETA}.ref.pic.gz'
+ref_path = '/home/juan.marin/tunings/v1/allTruth_mc16e/ref/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet_et{ET}_eta{ETA}.ref.pic.gz'
 
 paths = [[ path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_paths = [[ ref_path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_matrix = [[ {} for eta in range(5)] for et in range(5)]
-references = ['T0HLTPhotonT2CaloTight','T0HLTPhotonT2CaloMedium','T0HLTPhotonT2CaloLoose']
-references = ['tight_cutbased', 'medium_cutbased' , 'loose_cutbased']
+
+references2=[]
+for ref in references:
+    references2.append(ref+'_cutbased')
 
 from saphyra.core import ReferenceReader
 for et_bin in range(5):
     for eta_bin in range(5):
-        for name in references:
+        for name in references2:
             refObj = ReferenceReader().load(ref_paths[et_bin][eta_bin])
             pd = refObj.getSgnPassed(name)/refObj.getSgnTotal(name)
             fa = refObj.getBkgPassed(name)/refObj.getBkgTotal(name)

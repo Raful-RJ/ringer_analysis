@@ -16,10 +16,6 @@ import argparse
 
 parser = argparse.ArgumentParser(description = '', add_help = False)
 
-parser.add_argument('-i','--inputFiles', action='store',
-    dest='inputFiles', required = True, nargs='+',
-    help = "The npz input files that will be used")
-
 parser.add_argument('-t','--tunedFiles', action='store',
     dest='tunedFiles', required = False, default = None,
     help = "The output store name.")
@@ -33,35 +29,9 @@ parser.add_argument('-m','--modelTag', action='store',
     help = "Model version tag (e.g. v1.mc16")
 
 args = parser.parse_args()
-base_path     = args.inputFiles
+
 tunes_path    = args.tunedFiles
 analysis_path = args.outputPath
-
-
-print('Variables path defined \n base: %s \n tunes: %s \n analysis: %s' %(base_path,
-                                                                          tunes_path,
-                                                                          analysis_path))
-
-def create_cool_box_plot(df, key, mapped_key, output_name, tuning_flag):
-    # create the box plot. 
-    # rename the columns names.
-    # map the model idx into real # neurons.
-
-  sns.factorplot(data=(df
-                      .replace({'model_idx' : {i :  n for i, n in zip(range(0,9+1),
-                      range(2,10+1))},
-                              'et_bin'    : {i : str_etbins_jpsiee[i] for i in range(3)},
-                              'eta_bin'   : {i : str_etabins[i] for i in range(5)}})
-                      .rename({'model_idx'  : '# Neurons',
-                              'et_bin'     : r'$E_T$',
-                              'eta_bin'    : r'$\eta$',
-                              key : mapped_key},
-                      axis=1)), x='# Neurons',
-                      y=mapped_key, col=r'$\eta$', 
-                      row=r'$E_T$', kind='box', sharey=False)
-
-  plt.savefig(os.path.join(analysis_path, 'v1.mc16/plots/box_plot_%s_%s.png' %(output_name, tuning_flag)), dpi=300)
-  plt.close();
 
 def create_op_dict(op):
     d = {
@@ -103,9 +73,25 @@ tuned_info = collections.OrderedDict( {
               "max_sp_fa_op"    : 'summary/max_sp_fa_op#0',
               } )
 
-tuned_info.update(create_op_dict('tight'))
-tuned_info.update(create_op_dict('medium'))
-tuned_info.update(create_op_dict('loose'))
+references = [  'rlx20_hlt_tight', 
+                'rlx20_hlt_medium', 
+                'rlx20_hlt_loose', 
+                'rlx30_hlt_tight', 
+                'rlx30_hlt_medium', 
+                'rlx30_hlt_loose', 
+                'rlx40_hlt_tight', 
+                'rlx40_hlt_medium', 
+                'rlx40_hlt_loose', 
+                'rlx50_hlt_tight', 
+                'rlx50_hlt_medium', 
+                'rlx50_hlt_loose',
+                'hlt_loose',
+                'hlt_medium',
+                'hlt_tight']
+
+for ref in references: 
+    tuned_info.update(create_op_dict(ref))
+
 zrad_et_lims    = [15,20,30,40,50,10000000]
 
 eta_lims       = [0, 0.8 , 1.37, 1.54, 2.37, 2.5]
@@ -117,11 +103,7 @@ kt.fill(tunes_path, args.modelTag)
 table = kt.table()
 kt.to_csv(args.modelTag + '_all_models.csv')
 
-table.head(5)
-
-
 best_inits = kt.filter_inits("max_sp_val")
-best_inits.head()
 n_min, n_max = 2, 5
 
 
@@ -137,7 +119,7 @@ best_inits = best_inits.loc[(best_inits.train_tag== args.modelTag + '.mlp2')  |
                             (best_inits.train_tag== args.modelTag + '.mlp5')  ]
 
 
-for op in ['tight','medium','loose']:
+for op in references:
   kt.dump_beamer_table( best_inits        = best_inits,
                         operation_points  = [op], 
                         output            = args.modelTag +'_'+ op, 
