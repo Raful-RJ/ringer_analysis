@@ -65,7 +65,10 @@ tuned_info = collections.OrderedDict( {
               "max_sp_fa_op"    : 'summary/max_sp_fa_op#0',
               } )
 
-references = [  'rlx20_hlt_tight', 
+references = [  't2calo_tight',
+                't2calo_medium',
+                't2calo_loose',
+                'rlx20_hlt_tight', 
                 'rlx20_hlt_medium', 
                 'rlx20_hlt_loose', 
                 'rlx30_hlt_tight', 
@@ -87,8 +90,8 @@ for ref in references:
 args = parser.parse_args()
 
 cv  = crossval_table( tuned_info, etbins = etbins , etabins = etabins )
-# cv.fill(args.tunedFiles,args.modelTag)
-cv.from_csv('/home/juan.marin/tunings/v1/allTruth_mc16e/tables/v1.mc16_all_models_rlx.csv')
+cv.fill(args.tunedFiles,args.modelTag)
+# cv.from_csv('/home/juan.marin/tunings/v1/allTruth_mc16e/tables/v1.mc16_all_models_rlx.csv')
 best_inits = cv.filter_inits("max_sp_val")
 print(best_inits)
 best_inits = best_inits.loc[(best_inits.model_idx==0)]
@@ -159,7 +162,28 @@ ref_path = '/home/juan.marin/tunings/v1/allTruth_mc16e/ref/mc16_13TeV.sgn.MC.gam
 paths = [[ path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_paths = [[ ref_path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_matrix = [[ {} for eta in range(5)] for et in range(5)]
-
+references = [  't2calo_tight',
+                't2calo_medium',
+                't2calo_loose',
+                # 'rlx20_hlt_tight', 
+                # 'rlx20_hlt_medium', 
+                # 'rlx20_hlt_loose', 
+                # 'rlx30_hlt_tight', 
+                # 'rlx30_hlt_medium', 
+                # 'rlx30_hlt_loose', 
+                # 'rlx40_hlt_tight', 
+                # 'rlx40_hlt_medium', 
+                # 'rlx40_hlt_loose', 
+                # 'rlx50_hlt_tight', 
+                # 'rlx50_hlt_medium', 
+                # 'rlx50_hlt_loose',
+                # 'rlx70_hlt_tight', 
+                # 'rlx70_hlt_medium', 
+                # 'rlx70_hlt_loose',
+                # 'rlx90_hlt_tight', 
+                # 'rlx90_hlt_medium', 
+                # 'rlx90_hlt_loose',
+]
 references2=[]
 for ref in references:
     references2.append(ref+'_cutbased')
@@ -186,9 +210,12 @@ os.chdir(origin_path)
 
 table = ct.table()
 ct.dump_beamer_table(table, best_models, 'test', 'test')
-ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonLoose.et%d_eta%d', args.signature+'RingerLooseTriggerConfig.conf', 'loose_cutbased', to_onnx=True)
-ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonMedium.et%d_eta%d', args.signature+'RingerMediumTriggerConfig.conf', 'medium_cutbased', to_onnx=True)
-ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonTight.et%d_eta%d', args.signature+'RingerTightTriggerConfig.conf', 'tight_cutbased', to_onnx=True)
+for ref in references:
+    ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photon'+ref+'+.et%d_eta%d', args.signature+'Ringer'+ref+'TriggerConfig.conf', ref+'_cutbased', to_onnx=True)
+
+# ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonLoose.et%d_eta%d', args.signature+'RingerLooseTriggerConfig.conf', 'loose_cutbased', to_onnx=True)
+# ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonMedium.et%d_eta%d', args.signature+'RingerMediumTriggerConfig.conf', 'medium_cutbased', to_onnx=True)
+# ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonTight.et%d_eta%d', args.signature+'RingerTightTriggerConfig.conf', 'tight_cutbased', to_onnx=True)
 
 
 commandModels = 'mv *.h5 *.json *.onnx ' + args.outputPath + 'exportToolOutput/models'
