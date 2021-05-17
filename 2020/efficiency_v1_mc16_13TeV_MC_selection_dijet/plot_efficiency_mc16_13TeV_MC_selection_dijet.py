@@ -68,8 +68,8 @@ sg =  restoreStoreGate( inputFile )
 
 
 triggers = [
-                "EMU_g20_tight_noringer_L1EM3",
-                "EMU_g20_tight_ringer_v1_L1EM3",
+                "EMU_g20_loose_noringer_L1EM3",
+                "EMU_g20_loose_ringer_v1_L1EM3",
 
                 ]
 

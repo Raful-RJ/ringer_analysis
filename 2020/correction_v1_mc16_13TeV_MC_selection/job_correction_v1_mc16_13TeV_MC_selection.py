@@ -65,7 +65,8 @@ tuned_info = collections.OrderedDict( {
               "max_sp_fa_op"    : 'summary/max_sp_fa_op#0',
               } )
 
-references = [  't2calo_tight',
+references = [  
+                't2calo_tight',
                 't2calo_medium',
                 't2calo_loose',
                 'rlx20_hlt_tight', 
@@ -82,7 +83,8 @@ references = [  't2calo_tight',
                 'rlx50_hlt_loose',
                 'hlt_loose',
                 'hlt_medium',
-                'hlt_tight']
+                'hlt_tight'
+                ]
 
 for ref in references: 
     tuned_info.update(create_op_dict(ref))
@@ -157,32 +159,45 @@ refName = os.listdir(args.refFiles)[0]
 path = args.dataFiles + model_tag + '{ET}_eta{ETA}.npz'
 ref_tag = refName[0:[n for n in range(len(fileName)) if fileName.find('_et', n) == n][-1]-1]
 # ref_path = args.refFiles + ref_tag + '{ET}_eta{ETA}.ref.pic.gz'
-ref_path = '/home/juan.marin/tunings/v1/allTruth_mc16e/ref/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet_et{ET}_eta{ETA}.ref.pic.gz'
+ref_path = '/home/juan.marin/tunings/v1/allTruth_mc16e/ref2/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet_et{ET}_eta{ETA}.ref.pic.gz'
 
 paths = [[ path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_paths = [[ ref_path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
 ref_matrix = [[ {} for eta in range(5)] for et in range(5)]
-references = [  't2calo_tight',
-                't2calo_medium',
-                't2calo_loose',
-                # 'rlx20_hlt_tight', 
-                # 'rlx20_hlt_medium', 
-                # 'rlx20_hlt_loose', 
-                # 'rlx30_hlt_tight', 
-                # 'rlx30_hlt_medium', 
-                # 'rlx30_hlt_loose', 
-                # 'rlx40_hlt_tight', 
-                # 'rlx40_hlt_medium', 
-                # 'rlx40_hlt_loose', 
-                # 'rlx50_hlt_tight', 
-                # 'rlx50_hlt_medium', 
-                # 'rlx50_hlt_loose',
-                # 'rlx70_hlt_tight', 
-                # 'rlx70_hlt_medium', 
+references = [
+                #   't2calo_tight',
+#                 't2calo_medium',
+#                 't2calo_loose',
+                # 'rlx83_hlt_tight',
+                # 'rlx83_hlt_medium',
+                # 'rlx83_hlt_loose',
+                'rlx79_hlt_tight',
+                'rlx79_hlt_medium',
+                'rlx79_hlt_loose',
+                'rlx78_hlt_tight',
+                'rlx78_hlt_medium',
+                'rlx78_hlt_loose',
+                'rlx77_hlt_tight',
+                'rlx77_hlt_medium',
+                'rlx77_hlt_loose',
+                'rlx76_hlt_tight',
+                'rlx76_hlt_medium',
+                'rlx76_hlt_loose',
+                # 'rlx85_hlt_tight',
+                # 'rlx85_hlt_medium',
+                # 'rlx85_hlt_loose',
+                # 'rlx80_hlt_tight',
+                # 'rlx80_hlt_medium',
+                # 'rlx80_hlt_loose',
+                # 'rlx75_hlt_tight',
+                # 'rlx75_hlt_medium',
+                # 'rlx75_hlt_loose',
+                # 'rlx70_hlt_tight',
+                # 'rlx70_hlt_medium',
                 # 'rlx70_hlt_loose',
-                # 'rlx90_hlt_tight', 
-                # 'rlx90_hlt_medium', 
-                # 'rlx90_hlt_loose',
+                # 'rlx65_hlt_tight',
+                # 'rlx65_hlt_medium',
+                # 'rlx65_hlt_loose',
 ]
 references2=[]
 for ref in references:
