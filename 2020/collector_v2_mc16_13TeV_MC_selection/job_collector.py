@@ -49,7 +49,7 @@ from EventSelectionTool import EventSelection, SelectionType, EtCutType
 evt = EventSelection('EventSelection')
 evt.setCutValue( EtCutType.L2CaloAbove , 15)
 if args.doZrad:
-    pidname = 'ph_tight'
+    pidname = 'ph_medium'
 elif args.doFakes:
     pidname = '!ph_loose'
 else:

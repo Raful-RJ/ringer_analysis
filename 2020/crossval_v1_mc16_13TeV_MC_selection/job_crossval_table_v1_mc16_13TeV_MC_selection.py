@@ -92,9 +92,11 @@ references = [  'rlx20_hlt_tight',
 for ref in references: 
     tuned_info.update(create_op_dict(ref))
 
-zrad_et_lims    = [15,20,30,40,50,10000000]
+zrad_et_lims    = [15,20]
+#,30,40,50,10000000]
 
-eta_lims       = [0, 0.8 , 1.37, 1.54, 2.37, 2.5]
+eta_lims       = [0.8 , 1.37]
+#, 1.54, 2.37, 2.5]
 kt = crossval_table( tuned_info, etbins = zrad_et_lims, etabins = eta_lims )
 
 kt.fill(tunes_path, args.modelTag)
@@ -116,7 +118,12 @@ best_inits.shape, best_inits.model_idx.nunique()*25*10
 best_inits = best_inits.loc[(best_inits.train_tag== args.modelTag + '.mlp2')  |
                             (best_inits.train_tag== args.modelTag + '.mlp3')  |
                             (best_inits.train_tag== args.modelTag + '.mlp4')  |
-                            (best_inits.train_tag== args.modelTag + '.mlp5')  ]
+                            (best_inits.train_tag== args.modelTag + '.mlp5')  |
+                            (best_inits.train_tag== args.modelTag + '.mlp6')  |
+                            (best_inits.train_tag== args.modelTag + '.mlp7')  |
+                            (best_inits.train_tag== args.modelTag + '.mlp8')  |
+                            (best_inits.train_tag== args.modelTag + '.mlp9')  |
+                            (best_inits.train_tag== args.modelTag + '.mlp10') ]
 
 
 for op in references:

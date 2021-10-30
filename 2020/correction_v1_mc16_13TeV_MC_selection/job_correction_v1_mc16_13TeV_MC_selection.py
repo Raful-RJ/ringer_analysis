@@ -4,16 +4,16 @@ import argparse
 import os
 parser = argparse.ArgumentParser(description = '', add_help = False)
 
-parser.add_argument('--tunedFiles',action='store', dest='tunedFiles', required=True, help = "path to tuned files (.pic.gz)")
-parser.add_argument('--modelTag', action='store', dest='modelTag', required=True, help = "model tag (e.g v1.mc16)")
-parser.add_argument('--dataFiles',action='store',dest='dataFiles',required=True, help = "path to npz files")
-parser.add_argument('--refFiles', action='store', dest='refFiles', required = True, help = "path to reference files (.ref.pic.gz")
-parser.add_argument('--outputPath', action='store', dest='outputPath', required = True, help = "path to the output files")
-parser.add_argument('--signature', action='store', dest='signature', required = True, help = "particle signature (Electron, Photon, Muon)")
+parser.add_argument('-t','--tunedFiles',action='store', dest='tunedFiles', required=True, help = "path to tuned files (.pic.gz)")
+parser.add_argument('-m','--modelTag', action='store', dest='modelTag', required=True, help = "model tag (e.g v1.mc16)")
+parser.add_argument('-i','--dataFiles',action='store',dest='dataFiles',required=True, help = "path to npz files")
+parser.add_argument('-r','--refFiles', action='store', dest='refFiles', required = True, help = "path to reference files (.ref.pic.gz")
+parser.add_argument('-o','--outputPath', action='store', dest='outputPath', required = True, help = "path to the output files")
+parser.add_argument('-s','--signature', action='store', dest='signature', required = True, help = "particle signature (Electron, Photon, Muon)")
 
 origin_path = os.getcwd()
 etbins = [15,20,30,40,50,100000]
-etabins = [0, 0.8 , 1.37, 1.54, 2.37, 2.5]
+etabins = [0, 0.8 , 1.37, 1.54, 2.37]
 tuned_info = collections.OrderedDict( {
                   # validation
                   "max_sp_val"      : 'summary/max_sp_val',
@@ -66,24 +66,24 @@ tuned_info = collections.OrderedDict( {
               } )
 
 references = [  
-                't2calo_tight',
-                't2calo_medium',
-                't2calo_loose',
-                'rlx20_hlt_tight', 
-                'rlx20_hlt_medium', 
-                'rlx20_hlt_loose', 
-                'rlx30_hlt_tight', 
-                'rlx30_hlt_medium', 
-                'rlx30_hlt_loose', 
-                'rlx40_hlt_tight', 
-                'rlx40_hlt_medium', 
-                'rlx40_hlt_loose', 
-                'rlx50_hlt_tight', 
-                'rlx50_hlt_medium', 
-                'rlx50_hlt_loose',
-                'hlt_loose',
-                'hlt_medium',
-                'hlt_tight'
+                'tight',
+                'medium',
+                'loose',
+                #'rlx20_hlt_tight', 
+                #'rlx20_hlt_medium', 
+                #'rlx20_hlt_loose', 
+                #'rlx30_hlt_tight', 
+                #'rlx30_hlt_medium', 
+                #'rlx30_hlt_loose', 
+                #'rlx40_hlt_tight', 
+                #'rlx40_hlt_medium', 
+                #'rlx40_hlt_loose', 
+                #'rlx50_hlt_tight', 
+                #'rlx50_hlt_medium', 
+                #'rlx50_hlt_loose',
+                #'hlt_loose',
+                #'hlt_medium',
+                #'hlt_tight'
                 ]
 
 for ref in references: 
@@ -91,9 +91,9 @@ for ref in references:
 
 args = parser.parse_args()
 
-cv  = crossval_table( tuned_info, etbins = etbins , etabins = etabins )
-cv.fill(args.tunedFiles,args.modelTag)
-# cv.from_csv('/home/juan.marin/tunings/v1/allTruth_mc16e/tables/v1.mc16_all_models_rlx.csv')
+cv  = crossval_table( {}, etbins = etbins , etabins = etabins )
+#cv.fill(args.tunedFiles,args.modelTag)
+cv.from_csv('/home/rafael.vianna/tunings/versions/v1/crossvaltable/v1.mc16._all_models.csv')
 best_inits = cv.filter_inits("max_sp_val")
 print(best_inits)
 best_inits = best_inits.loc[(best_inits.model_idx==0)]
@@ -119,7 +119,7 @@ def generator( path ):
     sgnData = d['data'][target==1]
     bkgData = d['data'][target!=1]
     features=d['features']
-
+    
     featIndex = np.where(features=='mc_type')[0][0]
     s = []
     b = []
@@ -138,7 +138,7 @@ def generator( path ):
     avgmu = data[:,0]
     data = norm1(data[:,1:101])
     target = np.concatenate((np.ones(len(s)), np.zeros(len(b)))) 
-# references = ['T0HLTPhotonT2CaloTight','T0HLTPhotonT2CaloMedium','T0HLTPhotonT2CaloLoose']
+
     # ref_dict={}
     # for ref in references:
     #     answers = d['data'][:, feature_names.index(ref)]
@@ -153,36 +153,35 @@ def generator( path ):
 
     return data, target, avgmu
 
+#references = ['T0HLTPhotonT2CaloTight','T0HLTPhotonT2CaloMedium','T0HLTPhotonT2CaloLoose']
 fileName = os.listdir(args.dataFiles)[0]
 model_tag = fileName[0:[n for n in range(len(fileName)) if fileName.find('_et', n) == n][-1]-1]
 refName = os.listdir(args.refFiles)[0]
 path = args.dataFiles + model_tag + '{ET}_eta{ETA}.npz'
 ref_tag = refName[0:[n for n in range(len(fileName)) if fileName.find('_et', n) == n][-1]-1]
 # ref_path = args.refFiles + ref_tag + '{ET}_eta{ETA}.ref.pic.gz'
-ref_path = '/home/juan.marin/tunings/v1/allTruth_mc16e/ref2/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet_et{ET}_eta{ETA}.ref.pic.gz'
-
-paths = [[ path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
-ref_paths = [[ ref_path.format(ET=et,ETA=eta) for eta in range(5)] for et in range(5)]
-ref_matrix = [[ {} for eta in range(5)] for et in range(5)]
-references = [
-                #   't2calo_tight',
-#                 't2calo_medium',
-#                 't2calo_loose',
+ref_path = '/home/rafael.vianna/tunings/versions/v1/referenceFiles/mc16_13TeV.sgn.MC.gammajet.bkg.vetoMC.dijet.v1_et{ET}_eta{ETA}.ref.pic.gz'
+paths = [[ path.format(ET=et,ETA=eta) for eta in range(4)] for et in range(5)]
+ref_paths = [[ ref_path.format(ET=et,ETA=eta) for eta in range(4)] for et in range(5)]
+ref_matrix = [[ {} for eta in range(4)] for et in range(5)]
+references = [   'loose',
+                 'medium',
+                 'tight',
                 # 'rlx83_hlt_tight',
                 # 'rlx83_hlt_medium',
                 # 'rlx83_hlt_loose',
-                'rlx79_hlt_tight',
-                'rlx79_hlt_medium',
-                'rlx79_hlt_loose',
-                'rlx78_hlt_tight',
-                'rlx78_hlt_medium',
-                'rlx78_hlt_loose',
-                'rlx77_hlt_tight',
-                'rlx77_hlt_medium',
-                'rlx77_hlt_loose',
-                'rlx76_hlt_tight',
-                'rlx76_hlt_medium',
-                'rlx76_hlt_loose',
+                #'rlx79_hlt_tight',
+                #'rlx79_hlt_medium',
+                #'rlx79_hlt_loose',
+                #'rlx78_hlt_tight',
+                #'rlx78_hlt_medium',
+                #'rlx78_hlt_loose',
+                #'rlx77_hlt_tight',
+                #'rlx77_hlt_medium',
+                #'rlx77_hlt_loose',
+                #'rlx76_hlt_tight',
+                #'rlx76_hlt_medium',
+                #'rlx76_hlt_loose',
                 # 'rlx85_hlt_tight',
                 # 'rlx85_hlt_medium',
                 # 'rlx85_hlt_loose',
@@ -198,6 +197,7 @@ references = [
                 # 'rlx65_hlt_tight',
                 # 'rlx65_hlt_medium',
                 # 'rlx65_hlt_loose',
+
 ]
 references2=[]
 for ref in references:
@@ -205,12 +205,12 @@ for ref in references:
 
 from saphyra.core import ReferenceReader
 for et_bin in range(5):
-    for eta_bin in range(5):
+    for eta_bin in range(4):
         for name in references2:
             refObj = ReferenceReader().load(ref_paths[et_bin][eta_bin])
             pd = refObj.getSgnPassed(name)/refObj.getSgnTotal(name)
             fa = refObj.getBkgPassed(name)/refObj.getBkgTotal(name)
-            ref_matrix[et_bin][eta_bin][name] = {'pd':pd, 'fa':fa}
+            ref_matrix[et_bin][eta_bin][name] = {'pd':pd, 'fa':fa, 'pd_epsilon':0.0}
 
 
 
@@ -218,19 +218,19 @@ for et_bin in range(5):
 # get best models
 ct  = fit_table( generator, etbins , etabins, 0.02, 1.5, 16, 40 )
 os.chdir(args.outputPath)
-os.mkdir(args.outputPath + 'exportToolOutput/')
-os.mkdir(args.outputPath + 'exportToolOutput/models')
+os.mkdir(args.outputPath + 'exportToolOutput') 
+os.mkdir(args.outputPath + 'exportToolOutput/models') 
 ct.fill(paths, best_models, ref_matrix,'exportToolOutput/plots')
 os.chdir(origin_path)
 
 table = ct.table()
 ct.dump_beamer_table(table, best_models, 'test', 'test')
-for ref in references:
-    ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photon'+ref+'+.et%d_eta%d', args.signature+'Ringer'+ref+'TriggerConfig.conf', ref+'_cutbased', to_onnx=True)
+#for ref in references:
+#    ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photon'+ref+'+.et%d_eta%d', args.signature+'Ringer'+ref+'TriggerConfig.conf', ref+'_cutbased', to_onnx=True)
 
-# ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonLoose.et%d_eta%d', args.signature+'RingerLooseTriggerConfig.conf', 'loose_cutbased', to_onnx=True)
-# ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonMedium.et%d_eta%d', args.signature+'RingerMediumTriggerConfig.conf', 'medium_cutbased', to_onnx=True)
-# ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonTight.et%d_eta%d', args.signature+'RingerTightTriggerConfig.conf', 'tight_cutbased', to_onnx=True)
+ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonLoose.et%d_eta%d', args.signature+'RingerLooseTriggerConfig.conf', 'loose_cutbased', to_onnx=True)
+ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonMedium.et%d_eta%d', args.signature+'RingerMediumTriggerConfig.conf', 'medium_cutbased', to_onnx=True)
+ct.export(best_models, model_tag[0:len(model_tag)-3]+'.model_v1.photonTight.et%d_eta%d', args.signature+'RingerTightTriggerConfig.conf', 'tight_cutbased', to_onnx=True)
 
 
 commandModels = 'mv *.h5 *.json *.onnx ' + args.outputPath + 'exportToolOutput/models'
