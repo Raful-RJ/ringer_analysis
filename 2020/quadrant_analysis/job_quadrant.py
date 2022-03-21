@@ -12,7 +12,7 @@ import argparse
 ##################################################################################
 ##################################################################################
 ### This script aims to perform quadrant analizes over certain shower shapes   ###
-### considering two different selection chains.				       ###	   					       ###
+### considering two different selection chains.				       ###
 ##################################################################################
 ##################################################################################
 
@@ -169,8 +169,6 @@ class Quadrant():
 
 		output_path = self.output_path + '/quadrant_et%i_eta%i_%s_%s_Vs_%s.png' %(et_bin,eta_bin,var,self.pidname[0],self.pidname[1])
 		if var == 'rhad':
-			#array_ranges = np.array([hist_range(arg,2) for arg in args])
-			#arange = (np.mean(array_ranges[:,2]),np.mean(array_ranges[:,3]))
 			arange = (-0.3,0.3)
 		elif var == 'weta2':
 			arange = (0,0.02)
@@ -206,7 +204,6 @@ class Quadrant():
 
 		
 		print('Configurando parametros da plot ...')
-		#fig,ax = plt.subplots(nrows=2,ncols=1, sharex=True, sharey=False, height_ratios = [2,1])
 		fig = plt.figure(dpi = 200, figsize=(8, 6))
 		G = grd.GridSpec(2,1, height_ratios = [2,1])
 		fig_ax1 = fig.add_subplot(G[0,0])
@@ -219,8 +216,6 @@ class Quadrant():
 				pidname_legend.append(self._known_models[pid.upper()])
 		legend = ['Both Approved','%s Approved &\n %s Rejected' %(pidname_legend[0],pidname_legend[1]), '%s Rejected &\n %s Approved' %(pidname_legend[0],pidname_legend[1]),'Both Rejected']
 		color = ['k', 'red', 'blue', 'gray' ]
-		#idx_max = np.where(array_ranges[:,-1] == np.max(array_ranges[:,-1]))[0][0]
-		#range = (array_ranges[idx_max][0],array_ranges[idx_max][1])
 
 		list_ymax = []
 		for axis in range(4):
@@ -232,24 +227,14 @@ class Quadrant():
 		xmin = np.min(bins[1:])
 		total = N_agreements+N_disagreements
 		fig_ax1.text(xmin,ymax,'Total of events: %i\nAgreements: %.2f%%\nDisagreements: %.2f%%' %(total,100*N_agreements/total,100*N_disagreements/total),ha='left', va='top',fontsize = 'small')
-		#fig_ax1.hist([args[3],args[1],args[2],args[0]],n_bins,range = range, alpha = 0.75, label= legend, histtype = 'step', log = True, color = ['gray','red','blue','k'])
-		#n_events = args[0].shape[0] + args[1].shape[0] + args[2].shape[0] + args[3].shape[0]
-		#w1 = 100*np.ones(args[0].shape[0])/(n_events)
-		#w2 = 100*np.ones(args[3].shape[0])/(n_events)
-		#fig_ax2.hist([args[0],args[3]],n_bins, range = range, weights= (w1,w2), alpha = 0.75, histtype = 'step', color = ['k','gray'])
-		#fig_ax2.hist(args[3],200, density = True, alpha = 0.7, histtype = 'step', log = True, color = 'gray')
+		
 		fig_ax2.step(bins[1:], array_rel_occurences[:,1], linewidth = 0.7, color = 'k', alpha = 0.7)
 		fig_ax2.step(bins[1:], array_rel_occurences[:,4], linewidth = 0.7, color = 'gray', alpha = 0.7)
 
 		fig_ax3 = fig_ax2.twinx()
-		#w1 = 100*np.ones(args[1].shape[0])/(n_events)
-		#w2 = 100*np.ones(args[2].shape[0])/(n_events)
-		#fig_ax3.hist([args[1],args[2]],n_bins, range = range, weights= (w1,w2), alpha = 0.75, histtype = 'step', color = ['red','blue'])
-		#fig_ax3.hist(args[2],200, density = True, alpha = 0.7, histtype = 'step', log = True, color = 'blue')
 		fig_ax3.step(bins[1:], array_rel_occurences[:,2], linewidth = 0.7, color = 'red', alpha = 0.7)
 		fig_ax3.step(bins[1:], array_rel_occurences[:,3], linewidth = 0.7, color = 'blue', alpha = 0.7)
 
-		#fig_ax1.set_yticks(np.arange(10,np.max(array_occurences[:,4])*100,10))
 		fig_ax1.set_yticks([1e2,1e3,1e4,1e5,1e6,1e7])
 		fig_ax1.xaxis.set_ticklabels([])
 		fig_ax2.set_xlabel(self._var_dict_latex[var], fontsize = 'x-large', loc = 'right' )
